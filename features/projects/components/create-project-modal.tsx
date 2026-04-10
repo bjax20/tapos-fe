@@ -1,8 +1,8 @@
-"use client";
+"use client"
 
-import { Plus } from "lucide-react";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react"
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -10,41 +10,43 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { useProjects } from "@/features/projects/api/hooks/use-projects";
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { useProjects } from "@/features/projects/api/hooks/use-projects"
 
 export function CreateProjectModal() {
-  const [open, setOpen] = useState(false);
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState(""); // 1. New state
-  const { create, isCreating } = useProjects();
+  const [open, setOpen] = useState(false)
+  const [title, setTitle] = useState("")
+  const [description, setDescription] = useState("") // 1. New state
+  const { create, isCreating } = useProjects()
 
   const handleCreate = () => {
-    if (!title) return;
-    
-  
-    create({ title, description }, {
-      onSuccess: () => {
-        setOpen(false); 
-        setTitle("");   
-        setDescription(""); 
+    if (!title) return
+
+    create(
+      { title, description },
+      {
+        onSuccess: () => {
+          setOpen(false)
+          setTitle("")
+          setDescription("")
+        },
       }
-    });
-  };
+    )
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-white text-black hover:bg-zinc-200 rounded-lg px-5 font-bold transition-all active:scale-95">
-          <Plus className="w-4 h-4 mr-2" strokeWidth={3} />
+        <Button className="rounded-lg bg-white px-5 font-bold text-black transition-all hover:bg-zinc-200 active:scale-95">
+          <Plus className="mr-2 h-4 w-4" strokeWidth={3} />
           New Project
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] bg-zinc-950 border-zinc-800 text-white">
+      <DialogContent className="border-zinc-800 bg-zinc-950 text-white sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold tracking-tight">Create Workspace</DialogTitle>
           <DialogDescription className="text-zinc-500">
@@ -53,18 +55,20 @@ export function CreateProjectModal() {
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label htmlFor="name" className="text-zinc-400 text-xs uppercase tracking-widest">Project Name</Label>
+            <Label htmlFor="name" className="text-xs tracking-widest text-zinc-400 uppercase">
+              Project Name
+            </Label>
             <Input
               id="name"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Mobile App Redesign"
-              className="bg-zinc-900 border-zinc-800 focus:ring-zinc-400"
+              className="border-zinc-800 bg-zinc-900 focus:ring-zinc-400"
               autoFocus
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="description" className="text-zinc-400 text-xs uppercase tracking-widest">
+            <Label htmlFor="description" className="text-xs tracking-widest text-zinc-400 uppercase">
               Description <span className="text-zinc-600">(Optional)</span>
             </Label>
             <Textarea
@@ -72,20 +76,20 @@ export function CreateProjectModal() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Briefly describe the project goals..."
-              className="bg-zinc-900 border-zinc-800 focus:ring-zinc-400 resize-none min-h-[100px]"
+              className="min-h-[100px] resize-none border-zinc-800 bg-zinc-900 focus:ring-zinc-400"
             />
           </div>
         </div>
         <DialogFooter>
-          <Button 
-            onClick={handleCreate} 
+          <Button
+            onClick={handleCreate}
             disabled={isCreating || !title}
-            className="w-full bg-white text-black hover:bg-zinc-200 font-bold"
+            className="w-full bg-white font-bold text-black hover:bg-zinc-200"
           >
             {isCreating ? "Creating..." : "Initialize Project"}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
- 
+
 /**
  * Copyright (c) HashiCorp, Inc.
  * SPDX-License-Identifier: MPL-2.0
@@ -8,10 +8,10 @@
 // edited to work with the appdir by @raphaelbadia
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-import gzSize from "gzip-size";
-import { mkdirp } from "mkdirp";
-import fs from "fs";
-import path from "path";
+import gzSize from "gzip-size"
+import { mkdirp } from "mkdirp"
+import fs from "fs"
+import path from "path"
 
 // Pull options from `package.json`
 const options = getOptions()
@@ -70,7 +70,6 @@ const rawData = JSON.stringify({
 })
 
 // log ouputs to the gh actions panel
-
 
 mkdirp.sync(path.join(nextMetaRoot, "analyze/"))
 fs.writeFileSync(path.join(nextMetaRoot, "analyze/__bundle_analysis.json"), rawData)

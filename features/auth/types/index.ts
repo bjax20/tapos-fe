@@ -1,14 +1,14 @@
 export interface AuthCredentials {
-  email: string;
-  password?: string;
+  email: string
+  password?: string
 }
 
 export interface AuthResponse {
-  access_token: string;
+  access_token: string
 }
 
 export interface UserProfile {
-  userId: number;
-  email: string;
-  fullName: string;
+  userId: number
+  email: string
+  fullName: string
 }

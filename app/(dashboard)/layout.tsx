@@ -1,16 +1,10 @@
-import { DashboardNav } from "@/components/dashboard-nav";
+import { DashboardNav } from "@/components/dashboard-nav"
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative flex min-h-screen flex-col bg-zinc-950">
       <DashboardNav />
-      <main className="flex-1">
-        {children}
-      </main>
+      <main className="flex-1">{children}</main>
     </div>
-  );
+  )
 }
