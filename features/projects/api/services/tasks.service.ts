@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/api-client";
-import { Task, ChangeLog } from "../types"; // Import your types/interfaces
+import { ChangeLog, Task, TaskStatus } from "../../types/index"; // Import your types/interfaces
 
 export const taskService = {
   /**
@@ -47,7 +47,7 @@ export const taskService = {
   async updateTaskStatus(
     projectId: number, 
     taskId: number, 
-    status: string
+    status: TaskStatus
   ): Promise<Task> {
     const { data } = await apiClient.patch<Task>(
       `/projects/${projectId}/tasks/${taskId}/status`,

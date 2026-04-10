@@ -1,9 +1,9 @@
 import "styles/tailwind.css"
-import QueryProvider from "@/components/providers/query-provider"
 import { Geist } from "next/font/google";
-import { cn } from "@/lib/utils";
+import QueryProvider from "@/components/providers/query-provider"
 import { ThemeProvider } from "@/components/providers/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
+import { cn } from "@/lib/utils";
 
 // app/layout.tsx
 const geist = Geist({

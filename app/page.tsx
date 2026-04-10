@@ -1,5 +1,5 @@
+import { ArrowRight} from 'lucide-react'; // Assuming you use lucide-react
 import Link from 'next/link';
-import { ArrowRight, CheckCircle2 } from 'lucide-react'; // Assuming you use lucide-react
 
 export default function LandingPage() {
   return (

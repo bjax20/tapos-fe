@@ -1,10 +1,10 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { taskService } from "@/features/projects/api/services/tasks.service";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { History, ArrowRight, PlusCircle, CheckCircle2, MessageSquare } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { ArrowRight, CheckCircle2, History, MessageSquare, PlusCircle } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { taskService } from "@/features/projects/api/services/tasks.service";
 
 interface ActivityFeedProps {
   projectId: number;

@@ -1,8 +1,8 @@
 "use client"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { CheckCircle2 } from "lucide-react"
+import Link from "next/link"
 import { useState } from "react";
-import { useRegister } from "@/features/auth/api/hooks/use-auth";
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -12,13 +12,12 @@ import {
 } from "@/components/ui/card"
 import {
   Field,
-  FieldDescription,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { CheckCircle2 } from "lucide-react"
-import Link from "next/link"
+import { useRegister } from "@/features/auth/api/hooks/use-auth";
+import { cn } from "@/lib/utils"
 
 export function SignupForm({ className, ...props }: React.ComponentProps<"div">) {
   const [formData, setFormData] = useState({

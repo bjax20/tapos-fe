@@ -1,8 +1,8 @@
-import { useState, useMemo } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { taskService } from "@/features/projects/api/services/tasks.service";
-import { Task } from "../types";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { taskService } from "@/features/projects/api/services/tasks.service";
+import { Task, TaskStatus } from "../../types/index";
 
 export const useKanbanTasks = (projectId: number) => {
   const queryClient = useQueryClient();
@@ -60,7 +60,7 @@ const updateTaskMutation = useMutation({
 
   //  Existing Status/Move Mutation (Optimistic) ---
   const updateStatusMutation = useMutation({
-    mutationFn: ({ taskId, status }: { taskId: number; status: string }) =>
+    mutationFn: ({ taskId, status }: { taskId: number; status: TaskStatus }) =>
       taskService.updateTaskStatus(projectId, taskId, status),
     onMutate: async ({ taskId, status }) => {
       await queryClient.cancelQueries({ queryKey });
@@ -85,7 +85,7 @@ const updateTaskMutation = useMutation({
 
   // Create Mutation ---
   const createTaskMutation = useMutation({
-    mutationFn: (payload: { title: string; status: string }) =>
+    mutationFn: (payload: { title: string; status: TaskStatus }) =>
       taskService.createTask(projectId, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
@@ -94,7 +94,7 @@ const updateTaskMutation = useMutation({
     onError: () => toast.error("Failed to create task"),
   });
 
-  const moveTask = (taskId: number, newStatus: string) => {
+  const moveTask = (taskId: number, newStatus: TaskStatus) => {
     const optimisticTasks = tasks.map((t) =>
       t.id === taskId ? { ...t, status: newStatus } : t
     );
@@ -102,7 +102,7 @@ const updateTaskMutation = useMutation({
     updateStatusMutation.mutate({ taskId, status: newStatus });
   };
 
-  const createTask = (title: string, status: string) => {
+  const createTask = (title: string, status: TaskStatus) => {
     return createTaskMutation.mutateAsync({ title, status });
   };
 

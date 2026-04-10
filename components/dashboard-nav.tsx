@@ -1,7 +1,7 @@
+import { Bell, CheckCircle2, User } from "lucide-react";
 import Link from "next/link";
-import { CheckCircle2, User, Bell } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+
 
 export function DashboardNav() {
   return (

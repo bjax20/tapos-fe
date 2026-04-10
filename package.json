@@ -54,6 +54,7 @@
     "@semantic-release/npm": "^13.1.5",
     "@semantic-release/release-notes-generator": "^14.1.0",
     "@t3-oss/env-nextjs": "^0.13.10",
+    "@tanstack/react-query": "^5.97.0",
     "@vercel/otel": "^1.12.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

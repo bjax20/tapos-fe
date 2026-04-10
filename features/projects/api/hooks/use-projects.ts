@@ -1,6 +1,6 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { projectService } from "@/features/projects/api/services/projects.service";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { projectService } from "@/features/projects/api/services/projects.service";
 
 // Accept filters as an argument to make the hook dynamic
 export const useProjects = (filters: { role?: string; page?: number; limit?: number } = {}) => {

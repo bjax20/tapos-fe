@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import { Plus, X } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, X } from "lucide-react";
-
+import { TaskStatus, Task} from "../types";
 interface TaskComposerProps {
-  status: string;
-  onAdd: (title: string, status: string) => Promise<any>;
+  status: TaskStatus;
+  onAdd: (title: string, status: TaskStatus) => Promise<Task>;
   isPending: boolean;
 }
 

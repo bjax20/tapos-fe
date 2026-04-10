@@ -1,21 +1,21 @@
 "use client";
 
+import { Plus } from "lucide-react";
 import { useState } from "react";
-import { useProjects } from "@/features/projects/api/hooks/use-projects";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
-  DialogFooter
+  DialogTrigger
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Plus } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { useProjects } from "@/features/projects/api/hooks/use-projects";
 
 export function CreateProjectModal() {
   const [open, setOpen] = useState(false);

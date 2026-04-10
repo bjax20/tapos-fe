@@ -1,7 +1,7 @@
-import { KanbanBoard } from "@/features/projects/components/kanban-board";
-import { ActivityFeed } from "@/features/projects/components/activity-feed";
+import { History} from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, History } from "lucide-react";
+import { ActivityFeed } from "@/features/projects/components/activity-feed";
+import { KanbanBoard } from "@/features/projects/components/kanban-board";
 
 interface ProjectPageProps {
   params: Promise<{ projectId: string }>;

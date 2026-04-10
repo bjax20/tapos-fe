@@ -1,15 +1,15 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
+import { formatDistanceToNow } from "date-fns";
+import { AlignLeft, Check, Edit2, Layout, MessageSquare, ShieldAlert, Tag, Trash2, User2, X } from "lucide-react";
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useQuery } from "@tanstack/react-query";
-import { taskService } from "@/features/projects/api/services/tasks.service";
+import { Textarea } from "@/components/ui/textarea";
 import { projectService } from "@/features/projects/api/services/projects.service";
-import { Task } from "../types";
-import { formatDistanceToNow } from "date-fns";
-import { AlignLeft, Layout, User2, MessageSquare, Tag, Trash2, ShieldAlert, Edit2, Check, X } from "lucide-react";
+import { taskService } from "@/features/projects/api/services/tasks.service";
+import { Task, TaskStatus, User} from "../types";
 
 interface TaskDetailModalProps {
   task: Task | null;
@@ -164,7 +164,7 @@ export function TaskDetailModal({ task, isOpen, onClose, onUpdate, projectId }: 
                         <SelectValue placeholder="Unassigned" />
                       </SelectTrigger>
                       <SelectContent className="bg-zinc-900 border-zinc-800">
-                        {members?.map((m) => (
+                        {members?.map((m: User) => (
                           <SelectItem key={m.id} value={m.id.toString()}>{m.email}</SelectItem>
                         ))}
                       </SelectContent>
@@ -178,7 +178,7 @@ export function TaskDetailModal({ task, isOpen, onClose, onUpdate, projectId }: 
                     </label>
                     <Select 
                       defaultValue={task.status} 
-                      onValueChange={(val) => onUpdate(task.id, { status: val })}
+                      onValueChange={(val) => onUpdate(task.id, { status: val as TaskStatus })}
                     >
                       <SelectTrigger className="w-full bg-zinc-950 border-zinc-800 h-8 text-xs">
                         <SelectValue />

@@ -1,12 +1,12 @@
 "use client";
 
-import React, {useState} from "react";
-import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
-import { useKanbanTasks } from "../api/hooks/use-kanban-tasks";
+import { DragDropContext, Draggable, Droppable, DropResult } from "@hello-pangea/dnd";
 import { Loader2, MoreHorizontal } from "lucide-react";
+import React, {useState} from "react";
 import { TaskComposer } from "./task-composer";
 import { TaskDetailModal } from "./task-detail-modal";
-import { Task } from "../types";
+import { useKanbanTasks } from "../api/hooks/use-kanban-tasks";
+import { TaskStatus } from "../types";
 
 const COLUMNS = [
   { id: "TODO", title: "To Do" },
@@ -21,12 +21,17 @@ export function KanbanBoard({ projectId }: { projectId: number }) {
   const activeTask = tasks?.find((t) => t.id === selectedTaskId) || null;
 
   const onDragEnd = (result: DropResult) => {
-    const { destination, source, draggableId } = result;
-    if (!destination) return;
-    if (destination.droppableId === source.droppableId && destination.index === source.index) return;
+  const { destination, source, draggableId } = result;
 
-    moveTask(parseInt(draggableId), destination.droppableId);
-  };
+  if (!destination) return;
+  if (destination.droppableId === source.droppableId && destination.index === source.index) return;
+
+     // FIX: Cast destination.droppableId as TaskStatus
+    moveTask(
+        parseInt(draggableId), 
+        destination.droppableId as TaskStatus
+    );
+};
 
   if (isLoading) {
     return (
@@ -98,7 +103,7 @@ export function KanbanBoard({ projectId }: { projectId: number }) {
                   */}
                   <div className="mt-1 pb-2">
                     <TaskComposer 
-                      status={column.id} 
+                      status={column.id as TaskStatus} 
                       onAdd={createTask} 
                       isPending={isCreating} 
                     />

@@ -1,14 +1,14 @@
 "use client";
 
+import { CheckCircle2, Folder, Search, Users } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
-import { Folder, Users, CheckCircle2, Search } from "lucide-react";
-import { useProjects } from "@/features/projects/api/hooks/use-projects";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CreateProjectModal } from "@/features/projects/components/create-project-modal";
 import { Skeleton } from "@/components/ui/skeleton";
-import Link from "next/link";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useProjects } from "@/features/projects/api/hooks/use-projects";
+import { CreateProjectModal } from "@/features/projects/components/create-project-modal";
 
 export default function ProjectsPage() {
   // 1. Fetch real data from your hook
