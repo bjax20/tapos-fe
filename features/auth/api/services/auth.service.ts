@@ -1,5 +1,5 @@
 import { apiClient } from '@/lib/api-client';
-import { AuthCredentials, AuthResponse, UserProfile } from '../types';
+import { AuthCredentials, AuthResponse, UserProfile } from '../../types/index';
 
 export const authApi = {
   register: (data: AuthCredentials) => 

@@ -1,15 +1,18 @@
 import axios from 'axios';
 
 export const apiClient = axios.create({
-  baseURL: 'http://localhost:3000/api/v1',
+  // This automatically switches based on your environment
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
   headers: { 'Content-Type': 'application/json' },
 });
 
-// Interceptor to attach JWT
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token && config.headers) {
-    config.headers.Authorization = `Bearer ${token}`;
+  // Ensure we are in the browser before touching localStorage
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('token');
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
   }
   return config;
 });
