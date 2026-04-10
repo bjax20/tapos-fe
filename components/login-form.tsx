@@ -29,7 +29,7 @@ export function LoginForm({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const searchParams = useSearchParams();
-  const { mutate, isPending, isError } = useLogin();
+  const { mutate, isPending} = useLogin();
   useEffect(() => {
   const isRegistered = searchParams.get("registered");
   
