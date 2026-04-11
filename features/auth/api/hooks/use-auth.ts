@@ -3,6 +3,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { authApi } from "@/features/auth/api/services/auth.service"
+import { ApiErrorResponse } from "@/types"
+
 
 export const useLogin = () => {
   const router = useRouter()
@@ -21,11 +23,11 @@ export const useLogin = () => {
       //  Redirect to your specific projects route
       router.push("/projects")
     },
-    onError: (error: any) => {
+    onError: (error: ApiErrorResponse) => {
       // Logic for failed login (e.g., clearing old tokens)
       localStorage.removeItem("token")
       //   console.error('Login Error:', error);
-      const message = error.response?.data?.message || "Invalid credentials"
+      const message = error.message || "Invalid credentials"
       toast.error("Login failed", {
         description: Array.isArray(message) ? message[0] : message,
       })
@@ -42,9 +44,9 @@ export const useRegister = () => {
       // Registration successful, send them to login
       router.push("/login?registered=true")
     },
-    onError: (error: any) => {
+    onError: (error: ApiErrorResponse) => {
       //   console.error('Registration failed:', error?.response?.data || error.message);
-      const message = error.response?.data?.message || "Invalid credentials"
+      const message = error.message || "Invalid credentials"
       toast.error("Registration failed", {
         description: Array.isArray(message) ? message[0] : message,
       })
@@ -75,4 +77,38 @@ export const useLogout = () => {
   }
 
   return logout
+}
+
+export const useAuth = () => {
+  const queryClient = useQueryClient()
+  const router = useRouter()
+
+  //  Get the current user
+  const { 
+    data: user, 
+    isLoading, 
+    isError,
+    refetch 
+  } = useQuery({
+    queryKey: ["auth-user"],
+    queryFn: authApi.getMe,
+    retry: false,
+    staleTime: 1000 * 60 * 5,
+    enabled: typeof window !== "undefined" && !!localStorage.getItem("token"),
+  })
+
+  // Logout function
+  const logout = () => {
+    localStorage.removeItem("token")
+    queryClient.clear() // Wipe the cache so next user doesn't see old data
+    router.push("/login")
+  }
+
+  return {
+    user,
+    isLoading,
+    isAuthenticated: !!user && !isError,
+    logout,
+    refetchUser: refetch,
+  }
 }

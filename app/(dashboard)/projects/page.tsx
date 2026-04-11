@@ -1,28 +1,42 @@
 "use client"
 
-import { CheckCircle2, Folder, Search, Users } from "lucide-react"
+import { CheckCircle2, Folder, Search} from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useAuth } from "@/features/auth/api/hooks/use-auth"
 import { useProjects } from "@/features/projects/api/hooks/use-projects"
 import { CreateProjectModal } from "@/features/projects/components/create-project-modal"
+import { ProjectMembersModal } from "@/features/projects/components/project-members-modal"
+import { Project } from "@/features/projects/types"
 
 export default function ProjectsPage() {
-  // 1. Fetch real data from your hook
-  const { projects, isLoading } = useProjects()
+  const { projects = [], isLoading } = useProjects()
+  const { user } = useAuth() // Get the current logged-in user
 
   const [filter, setFilter] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
 
-  // 2. Filter logic based on both Tabs and Search Input
-  const filteredProjects = projects.filter((p) => {
-    const matchesFilter = filter === "all" || p.role === filter
+  const filteredProjects = projects.filter((p: Project) => {
+    // 1. Logic to determine role since it's missing from the API response
+    const isOwner = user?.id === p.ownerId
+
+    // 2. Filter logic
+    let matchesFilter = true
+    if (filter === "owner") {
+      matchesFilter = isOwner
+    } else if (filter === "member") {
+      matchesFilter = !isOwner // If not owner, they are a member
+    }
+
+    // 3. Search logic
+    const searchLower = searchQuery.toLowerCase()
     const matchesSearch =
-      p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.description.toLowerCase().includes(searchQuery.toLowerCase())
+      p.title.toLowerCase().includes(searchLower) || (p.description?.toLowerCase() || "").includes(searchLower)
+
     return matchesFilter && matchesSearch
   })
 
@@ -95,9 +109,13 @@ export default function ProjectsPage() {
                         <div className="flex h-8 w-8 items-center justify-center rounded-md bg-zinc-800 text-zinc-400 transition-colors group-hover:text-white">
                           <Folder className="h-4 w-4" />
                         </div>
-                        {project.role === "owner" && (
+                        {user?.id === project.ownerId ? (
                           <span className="rounded bg-zinc-100 px-2 py-1 text-[9px] font-black tracking-widest text-black uppercase">
                             Owner
+                          </span>
+                        ) : (
+                          <span className="rounded border border-zinc-800 px-2 py-1 text-[9px] font-bold tracking-widest text-zinc-500 uppercase">
+                            Member
                           </span>
                         )}
                       </div>
@@ -114,10 +132,13 @@ export default function ProjectsPage() {
                           <CheckCircle2 className="h-3 w-3 text-emerald-500" />
                           {project.taskCount} Tasks
                         </span>
-                        <span className="flex items-center gap-1">
+                        {/* <span className="flex items-center gap-1">
                           <Users className="h-3 w-3" />
                           {project.memberCount}
-                        </span>
+                        </span> */}
+                        <div onClick={(e) => e.preventDefault()}>
+                          <ProjectMembersModal projectId={project.id} projectTitle={project.title} />
+                        </div>
                       </div>
                       <span className="underline decoration-zinc-700 underline-offset-4 opacity-0 transition-opacity group-hover:opacity-100">
                         Open →

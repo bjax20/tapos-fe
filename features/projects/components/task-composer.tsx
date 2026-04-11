@@ -4,7 +4,7 @@ import { Plus, X } from "lucide-react"
 import React, { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { TaskStatus, Task } from "../types"
+import { Task, TaskStatus} from "../types"
 interface TaskComposerProps {
   status: TaskStatus
   onAdd: (title: string, status: TaskStatus) => Promise<Task>

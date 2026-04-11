@@ -53,6 +53,6 @@ export const useProjectDetail = (id: string) => {
     queryKey: ["projects", "detail", id],
     queryFn: () => projectService.getById(id),
     enabled: !!id,
-    staleTime: 1000 * 60 * 5, // Detail view can stay fresh longer
+    staleTime: 1000 * 60 * 5,
   })
 }

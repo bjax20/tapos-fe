@@ -8,7 +8,7 @@ export interface AuthResponse {
 }
 
 export interface UserProfile {
-  userId: number
+  id: number
   email: string
   fullName: string
 }

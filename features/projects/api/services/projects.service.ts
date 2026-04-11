@@ -1,25 +1,5 @@
 import { apiClient } from "@/lib/api-client"
-
-export interface Project {
-  id: number
-  title: string
-  description: string
-  ownerId: number
-  memberCount: number
-  taskCount: number
-  createdAt: string
-  role?: "owner" | "member"
-}
-
-export interface ApiResponse<T> {
-  data: T
-  pagination: {
-    page: number
-    limit: number
-    total: number
-    totalPages: number
-  }
-}
+import { ApiResponse, Project } from "../../types"
 
 export const projectService = {
   // GET /api/v1/projects
@@ -56,6 +36,12 @@ export const projectService = {
   // GET /api/v1/projects/{id}/members
   getMembers: async (id: number) => {
     const { data } = await apiClient.get(`/projects/${id}/members`)
+    return data
+  },
+
+  // Add this to your projectService object
+  addMember: async (projectId: number, email: string) => {
+    const { data } = await apiClient.post(`/projects/${projectId}/members`, { email })
     return data
   },
 }

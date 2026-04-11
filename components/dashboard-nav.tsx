@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 export function DashboardNav() {
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-zinc-900 bg-zinc-950/80 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+      <div className="flex h-16 items-center justify-between px-6">
         {/* Brand/Logo Section */}
         <Link href="/projects" className="group flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white transition-transform group-hover:rotate-3">

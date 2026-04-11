@@ -111,7 +111,7 @@ export function KanbanBoard({ projectId }: { projectId: number }) {
 
       <TaskDetailModal
         // Key now tracks the live activeTask's ID and title
-        key={activeTask ? `${activeTask.id}-${activeTask.title}` : "empty"}
+        // key={activeTask ? `${activeTask.id}-${activeTask.title}` : "empty"}
         projectId={projectId}
         task={activeTask} // Pass the fresh found task
         isOpen={!!selectedTaskId} // Open if we have an ID

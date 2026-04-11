@@ -7,11 +7,14 @@
 
 // edited to work with the appdir by @raphaelbadia
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
 import gzSize from "gzip-size"
 import { mkdirp } from "mkdirp"
 import fs from "fs"
 import path from "path"
+import { createRequire } from "module"
+
+// Create a require instance for JSON files and package logic
+const require = createRequire(import.meta.url)
 
 // Pull options from `package.json`
 const options = getOptions()
@@ -28,12 +31,11 @@ try {
   process.exit(1)
 }
 
-// if so, we can import the build manifest
-const buildMeta = require(path.join(nextMetaRoot, "build-manifest.json"))
-const appDirMeta = require(path.join(nextMetaRoot, "app-build-manifest.json"))
+// Using fs.readFileSync + JSON.parse for ESM compatibility with JSON files
+const buildMeta = JSON.parse(fs.readFileSync(path.join(nextMetaRoot, "build-manifest.json"), "utf8"))
+const appDirMeta = JSON.parse(fs.readFileSync(path.join(nextMetaRoot, "app-build-manifest.json"), "utf8"))
 
 // this memory cache ensures we dont read any script file more than once
-// bundles are often shared between pages
 const memoryCache = {}
 
 // since _app is the template that all other pages are rendered into,
@@ -52,7 +54,7 @@ const allPageSizes = Object.values(buildMeta.pages).reduce((acc, scriptPaths, i)
   return acc
 }, {})
 
-const globalAppDirBundle = buildMeta.rootMainFiles
+const globalAppDirBundle = buildMeta.rootMainFiles || []
 const globalAppDirBundleSizes = getScriptSizes(globalAppDirBundle)
 
 const allAppDirSizes = Object.values(appDirMeta.pages).reduce((acc, scriptPaths, i) => {
@@ -69,8 +71,7 @@ const rawData = JSON.stringify({
   __global: globalAppDirBundleSizes,
 })
 
-// log ouputs to the gh actions panel
-
+// log outputs to the gh actions panel
 mkdirp.sync(path.join(nextMetaRoot, "analyze/"))
 fs.writeFileSync(path.join(nextMetaRoot, "analyze/__bundle_analysis.json"), rawData)
 
@@ -78,9 +79,8 @@ fs.writeFileSync(path.join(nextMetaRoot, "analyze/__bundle_analysis.json"), rawD
 // Util Functions
 // --------------
 
-// given an array of scripts, return the total of their combined file sizes
 function getScriptSizes(scriptPaths) {
-  const res = scriptPaths.reduce(
+  return scriptPaths.reduce(
     (acc, scriptPath) => {
       const [rawSize, gzipSize] = getScriptSize(scriptPath)
       acc.raw += rawSize
@@ -90,44 +90,30 @@ function getScriptSizes(scriptPaths) {
     },
     { raw: 0, gzip: 0 }
   )
-
-  return res
 }
 
-// given an individual path to a script, return its file size
 function getScriptSize(scriptPath) {
   const encoding = "utf8"
   const p = path.join(nextMetaRoot, scriptPath)
 
-  let rawSize, gzipSize
-  if (Object.keys(memoryCache).includes(p)) {
-    rawSize = memoryCache[p][0]
-    gzipSize = memoryCache[p][1]
-  } else {
-    const textContent = fs.readFileSync(p, encoding)
-    rawSize = Buffer.byteLength(textContent, encoding)
-    gzipSize = gzSize.sync(textContent)
-    memoryCache[p] = [rawSize, gzipSize]
+  if (memoryCache[p]) {
+    return memoryCache[p]
   }
 
-  return [rawSize, gzipSize]
+  const textContent = fs.readFileSync(p, encoding)
+  const rawSize = Buffer.byteLength(textContent, encoding)
+  const gzipSize = gzSize.sync(textContent)
+  
+  const result = [rawSize, gzipSize]
+  memoryCache[p] = result
+  return result
 }
 
-/**
- * Reads options from `package.json`
- */
 function getOptions(pathPrefix = process.cwd()) {
-  const pkg = require(path.join(pathPrefix, "package.json"))
-
+  const pkg = JSON.parse(fs.readFileSync(path.join(pathPrefix, "package.json"), "utf8"))
   return { ...pkg.nextBundleAnalysis, name: pkg.name }
 }
 
-/**
- * Gets the output build directory, defaults to `.next`
- *
- * @param {object} options the options parsed from package.json.nextBundleAnalysis using `getOptions`
- * @returns {string}
- */
 function getBuildOutputDirectory(options) {
   return options.buildOutputDirectory || ".next"
 }
