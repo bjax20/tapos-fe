@@ -5,28 +5,20 @@ import { toast } from "sonner"
 import { authApi } from "@/features/auth/api/services/auth.service"
 import { ApiErrorResponse } from "@/types"
 
-
 export const useLogin = () => {
   const router = useRouter()
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: authApi.login,
-    onSuccess: (data) => {
-      // Persist the token
-      localStorage.setItem("token", data.access_token)
-
-      // Immediately invalidate or set the 'auth-user' query
-      // This prevents the app from showing "logged out" state briefly
+    onSuccess: () => {
+      // Invalidate the user query
       queryClient.invalidateQueries({ queryKey: ["auth-user"] })
 
-      //  Redirect to your specific projects route
+      // Redirect
       router.push("/projects")
     },
     onError: (error: ApiErrorResponse) => {
-      // Logic for failed login (e.g., clearing old tokens)
-      localStorage.removeItem("token")
-      //   console.error('Login Error:', error);
       const message = error.message || "Invalid credentials"
       toast.error("Login failed", {
         description: Array.isArray(message) ? message[0] : message,
@@ -58,11 +50,8 @@ export const useUser = () => {
   return useQuery({
     queryKey: ["auth-user"],
     queryFn: authApi.getMe,
-    // Professional settings for auth:
     retry: false,
-    staleTime: 1000 * 60 * 5, // Consider user data fresh for 5 mins
-    // Only run the query if we actually have a token in storage
-    enabled: typeof window !== "undefined" && !!localStorage.getItem("token"),
+    staleTime: 1000 * 60 * 5,
   })
 }
 
@@ -70,38 +59,46 @@ export const useLogout = () => {
   const router = useRouter()
   const queryClient = useQueryClient()
 
-  const logout = () => {
-    localStorage.removeItem("token")
-    queryClient.clear() // Wipe the cache
-    router.push("/login")
-  }
+  return useMutation({
+    mutationFn: authApi.logout,
+    onSettled: () => {
+      // SUCCESS OR FAILURE: We want to clear the local state
 
-  return logout
+      // Clear all React Query cache (removes user data)
+      queryClient.clear()
+
+      // Clear old token if it exists
+      localStorage.removeItem("token")
+
+      // Send back to login and refresh to reset server components
+      router.push("/login")
+      router.refresh()
+
+      toast.success("Logged out successfully")
+    },
+  })
 }
 
 export const useAuth = () => {
-  const queryClient = useQueryClient()
   const router = useRouter()
+  // Get the mutate function from your custom useLogout hook
+  const { mutate: performLogout } = useLogout()
 
-  //  Get the current user
-  const { 
-    data: user, 
-    isLoading, 
+  const {
+    data: user,
+    isLoading,
     isError,
-    refetch 
+    refetch,
   } = useQuery({
     queryKey: ["auth-user"],
     queryFn: authApi.getMe,
     retry: false,
     staleTime: 1000 * 60 * 5,
-    enabled: typeof window !== "undefined" && !!localStorage.getItem("token"),
   })
 
-  // Logout function
+  // Update the internal logout to trigger the mutation
   const logout = () => {
-    localStorage.removeItem("token")
-    queryClient.clear() // Wipe the cache so next user doesn't see old data
-    router.push("/login")
+    performLogout()
   }
 
   return {

@@ -7,4 +7,6 @@ export const authApi = {
   login: (data: AuthCredentials): Promise<AuthResponse> => apiClient.post("/auth/login", data).then((res) => res.data),
 
   getMe: (): Promise<UserProfile> => apiClient.get("/auth/me").then((res) => res.data),
+
+  logout: () => apiClient.post("/auth/logout").then((res) => res.data)
 }

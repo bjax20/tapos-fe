@@ -14,7 +14,8 @@ export function ActivityFeed({ projectId }: ActivityFeedProps) {
   const { data: logs, isLoading } = useQuery({
     queryKey: ["project-logs", projectId],
     queryFn: () => taskService.getProjectLogs(projectId),
-    refetchInterval: 10000,
+    staleTime: 1000 * 60 * 5,
+    refetchIntervalInBackground: false, // Don't poll if the tab is hidden
   })
 
   if (isLoading) {
@@ -30,7 +31,7 @@ export function ActivityFeed({ projectId }: ActivityFeedProps) {
   return (
     <div className="flex h-full flex-col bg-zinc-950/50">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-zinc-900 bg-black/20 p-4">
+      <div className="flex shrink-0 items-center justify-between border-b border-zinc-900 bg-black/20 p-4">
         <div className="flex items-center gap-2">
           <History size={16} className="text-zinc-500" />
           <h2 className="text-xs font-bold tracking-wider text-zinc-400 uppercase">Activity Log</h2>

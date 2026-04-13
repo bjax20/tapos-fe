@@ -3,6 +3,7 @@
 import { DragDropContext, Draggable, Droppable, DropResult } from "@hello-pangea/dnd"
 import { Loader2, MoreHorizontal } from "lucide-react"
 import React, { useState } from "react"
+import KanbanSkeleton from "./kanban-skeleton"
 import { TaskComposer } from "./task-composer"
 import { TaskDetailModal } from "./task-detail-modal"
 import { useKanbanTasks } from "../api/hooks/use-kanban-tasks"
@@ -15,7 +16,7 @@ const COLUMNS = [
 ]
 
 export function KanbanBoard({ projectId }: { projectId: number }) {
-  const { tasks, isLoading, moveTask, createTask, updateTask, isCreating } = useKanbanTasks(projectId)
+  const { tasks, isLoading, moveTask, createTask, updateTask, deleteTask, isCreating } = useKanbanTasks(projectId)
 
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null)
   const activeTask = tasks?.find((t) => t.id === selectedTaskId) || null
@@ -23,19 +24,40 @@ export function KanbanBoard({ projectId }: { projectId: number }) {
   const onDragEnd = (result: DropResult) => {
     const { destination, source, draggableId } = result
 
-    if (!destination) return
+    if (!destination || !tasks) return
     if (destination.droppableId === source.droppableId && destination.index === source.index) return
 
-    // FIX: Cast destination.droppableId as TaskStatus
-    moveTask(parseInt(draggableId), destination.droppableId as TaskStatus)
+    const newStatus = destination.droppableId as TaskStatus
+    const taskId = parseInt(draggableId)
+
+    const columnTasks = tasks
+      .filter((t) => t.status === newStatus && t.id !== taskId)
+      .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+
+    let newPosition: number
+
+    const prevTask = columnTasks[destination.index - 1]
+    const nextTask = columnTasks[destination.index]
+
+    if (columnTasks.length === 0) {
+      newPosition = 1000
+    } else if (!prevTask) {
+      // We are at the top, use the first task's position
+      // nextTask is guaranteed to exist if length > 0 and !prevTask
+      newPosition = (nextTask?.position ?? 0) / 2
+    } else if (!nextTask) {
+      // We are at the bottom
+      newPosition = (prevTask?.position ?? 0) + 1000
+    } else {
+      // We are between two tasks
+      newPosition = ((prevTask?.position ?? 0) + (nextTask?.position ?? 0)) / 2
+    }
+
+    moveTask(taskId, newStatus, newPosition)
   }
 
   if (isLoading) {
-    return (
-      <div className="flex h-64 w-full items-center justify-center">
-        <Loader2 className="animate-spin text-zinc-500" />
-      </div>
-    )
+    return <KanbanSkeleton />
   }
 
   return (
@@ -49,7 +71,7 @@ export function KanbanBoard({ projectId }: { projectId: number }) {
           {COLUMNS.map((column) => (
             <div
               key={column.id}
-              className="flex h-auto w-full flex-col rounded-xl border border-zinc-900 bg-zinc-900/30 md:w-[320px]"
+              className="flex h-auto w-full flex-col rounded-xl border border-zinc-900 bg-zinc-900/30 md:flex-1"
             >
               {/* Column Header */}
               <div className="flex items-center justify-between p-4">
@@ -72,6 +94,7 @@ export function KanbanBoard({ projectId }: { projectId: number }) {
                   >
                     {tasks
                       ?.filter((t) => t.status === column.id)
+                      .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
                       .map((task, index) => (
                         <Draggable key={task.id} draggableId={task.id.toString()} index={index}>
                           {(dragProvided, dragSnapshot) => (
@@ -117,6 +140,8 @@ export function KanbanBoard({ projectId }: { projectId: number }) {
         isOpen={!!selectedTaskId} // Open if we have an ID
         onClose={() => setSelectedTaskId(null)} // Clear the ID to close
         onUpdate={updateTask}
+        onMove={moveTask}
+        onDelete={deleteTask}
       />
     </>
   )

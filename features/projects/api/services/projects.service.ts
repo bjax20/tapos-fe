@@ -11,7 +11,7 @@ export const projectService = {
   },
 
   // GET /api/v1/projects/{id}
-  getById: async (id: string) => {
+  getById: async (id: string | number) => {
     const { data } = await apiClient.get<Project>(`/projects/${id}`)
     return data
   },
@@ -23,13 +23,13 @@ export const projectService = {
   },
 
   // PATCH /api/v1/projects/{id}
-  update: async (id: string, payload: Partial<Project>) => {
+  update: async (id: string | number, payload: Partial<Project>) => {
     const { data } = await apiClient.patch<Project>(`/projects/${id}`, payload)
     return data
   },
 
   // DELETE /api/v1/projects/{id}
-  delete: async (id: string) => {
+  delete: async (id: string | number) => {
     await apiClient.delete(`/projects/${id}`)
   },
 

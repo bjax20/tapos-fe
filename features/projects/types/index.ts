@@ -39,6 +39,7 @@ export interface Task {
   status: TaskStatus;
   projectId: number;
   assigneeId?: number | null;
+  position: number;
   createdAt: string;
   updatedAt: string;
   assignee?: UserBase | null;
@@ -71,8 +72,10 @@ export interface CreateTaskPayload {
   title: string;
   description?: string;
   assigneeId?: number;
+  status?: TaskStatus; 
 }
 
-export interface UpdateTaskStatusPayload {
-  status: TaskStatus;
+export interface MoveTaskPayload {
+  status?: TaskStatus;  // Optional: Only sent if changing columns
+  position?: number;    // Optional: Only sent if changing order
 }

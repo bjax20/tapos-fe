@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useMemo, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import { toast } from "sonner"
 import { taskService } from "@/features/projects/api/services/tasks.service"
 import { Task, TaskStatus } from "../../types/index"
@@ -16,72 +16,45 @@ export const useKanbanTasks = (projectId: number) => {
     queryFn: () => taskService.getTasks(projectId),
   })
 
-  const tasks = useMemo(() => tempTasks ?? serverTasks, [tempTasks, serverTasks])
+  // --- FIX 1: Stable Sorting ---
+  const tasks = useMemo(() => {
+    const baseTasks = tempTasks ?? serverTasks
+    return [...baseTasks].sort((a, b) => {
+      if (a.position !== b.position) {
+        return (a.position ?? 0) - (b.position ?? 0)
+      }
+      return a.id - b.id // Tie-breaker for duplicate positions
+    })
+  }, [tempTasks, serverTasks])
 
-  //  Generic Update Mutation (For Title, Description, Assignee)
-  // in useKanbanTasks.ts
-
-  const updateTaskMutation = useMutation({
-    mutationFn: ({ taskId, updates }: { taskId: number; updates: Partial<Task> }) =>
-      taskService.updateTask(projectId, taskId, updates),
-
-    onMutate: async ({ taskId, updates }) => {
+  const moveTaskMutation = useMutation({
+    mutationFn: ({ taskId, status, position }: { taskId: number; status?: TaskStatus; position?: number }) =>
+      taskService.moveTask(projectId, taskId, { status, position }),
+    onMutate: async ({ taskId, status, position }) => {
       await queryClient.cancelQueries({ queryKey })
-      const previousTasks = queryClient.getQueryData<Task[]>(queryKey)
+      const previousTasks = queryClient.getQueryData<Task[]>(queryKey) || []
 
-      // --- FIX: Update the tempTasks shield here too! ---
-      const optimistic = tasks.map((t) => (t.id === taskId ? { ...t, ...updates } : t))
-      setTempTasks(optimistic)
-
-      // Still update the cache for background safety
-      queryClient.setQueryData<Task[]>(queryKey, optimistic)
-
-      return { previousTasks }
-    },
-
-    // onSuccess: (updatedData) => {
-    //   // If server returns the list, keep it in sync
-    //   queryClient.setQueryData(queryKey, updatedData);
-    // },
-
-    onError: (err, variables, context) => {
-      queryClient.setQueryData(queryKey, context?.previousTasks)
-      setTempTasks(null) // Clear the shield on error
-      toast.error("Update failed")
-    },
-
-    onSettled: () => {
-      setTempTasks(null) // --- FIX: Clear the shield so serverTasks takes over ---
-      queryClient.invalidateQueries({ queryKey })
-    },
-  })
-
-  //  Existing Status/Move Mutation (Optimistic) ---
-  const updateStatusMutation = useMutation({
-    mutationFn: ({ taskId, status }: { taskId: number; status: TaskStatus }) =>
-      taskService.updateTaskStatus(projectId, taskId, status),
-    onMutate: async ({ taskId, status }) => {
-      await queryClient.cancelQueries({ queryKey })
-      const previousTasks = queryClient.getQueryData<Task[]>(queryKey)
-
-      queryClient.setQueryData<Task[]>(queryKey, (old) =>
-        old?.map((task) => (task.id === taskId ? { ...task, status } : task))
+      const optimistic = previousTasks.map((t) =>
+        t.id === taskId ? { ...t, ...(status && { status }), ...(position !== undefined && { position }) } : t
       )
 
+      queryClient.setQueryData<Task[]>(queryKey, optimistic)
       return { previousTasks }
     },
     onError: (err, variables, context) => {
       queryClient.setQueryData(queryKey, context?.previousTasks)
       toast.error("Failed to move task")
+      setTempTasks(null) // Clear on error too
     },
     onSettled: () => {
-      setTempTasks(null)
       queryClient.invalidateQueries({ queryKey })
       queryClient.invalidateQueries({ queryKey: logsQueryKey })
+      // Clear tempTasks AFTER invalidation and refetch complete
+      setTempTasks(null)
     },
   })
 
-  // Create Mutation ---
+  // --- 2. Create Mutation ---
   const createTaskMutation = useMutation({
     mutationFn: (payload: { title: string; status: TaskStatus }) => taskService.createTask(projectId, payload),
     onSuccess: () => {
@@ -91,28 +64,83 @@ export const useKanbanTasks = (projectId: number) => {
     onError: () => toast.error("Failed to create task"),
   })
 
-  const moveTask = (taskId: number, newStatus: TaskStatus) => {
-    const optimisticTasks = tasks.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t))
-    setTempTasks(optimisticTasks)
-    updateStatusMutation.mutate({ taskId, status: newStatus })
-  }
+  // --- 3. Update Mutation (Title, Description, etc.) ---
+  const updateTaskMutation = useMutation({
+    mutationFn: ({ taskId, updates }: { taskId: number; updates: Partial<Task> }) =>
+      taskService.updateTask(projectId, taskId, updates),
+    onMutate: async ({ taskId, updates }) => {
+      await queryClient.cancelQueries({ queryKey })
+      const previousTasks = queryClient.getQueryData<Task[]>(queryKey) || []
+      const optimistic = previousTasks.map((t) => (t.id === taskId ? { ...t, ...updates } : t))
+      queryClient.setQueryData<Task[]>(queryKey, optimistic)
+      return { previousTasks }
+    },
+    onError: (err, variables, context) => {
+      queryClient.setQueryData(queryKey, context?.previousTasks)
+      toast.error("Update failed")
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey }),
+  })
 
-  const createTask = (title: string, status: TaskStatus) => {
-    return createTaskMutation.mutateAsync({ title, status })
-  }
+  // --- 4. Delete Mutation ---
+  const deleteTaskMutation = useMutation({
+    mutationFn: (taskId: number) => taskService.deleteTask(projectId, taskId),
+    onMutate: async (taskId) => {
+      await queryClient.cancelQueries({ queryKey })
+      const previousTasks = queryClient.getQueryData<Task[]>(queryKey) || []
+      queryClient.setQueryData<Task[]>(
+        queryKey,
+        previousTasks.filter((t) => t.id !== taskId)
+      )
+      return { previousTasks }
+    },
+    onError: (err, variables, context) => {
+      queryClient.setQueryData(queryKey, context?.previousTasks)
+      toast.error("Failed to delete task")
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey })
+      queryClient.invalidateQueries({ queryKey: logsQueryKey })
+    },
+  })
 
-  // --- 4. Exposed Update Method ---
-  const updateTask = (taskId: number, updates: Partial<Task>) => {
-    updateTaskMutation.mutate({ taskId, updates })
-  }
+  // --- Exposed Handlers ---
 
+  const moveTask = useCallback(
+    async (taskId: number, newStatus: TaskStatus, newPosition: number) => {
+
+      // Set UI lock
+      const optimistic = tasks.map((t) => (t.id === taskId ? { ...t, status: newStatus, position: newPosition } : t))
+      setTempTasks(optimistic)
+
+      try {
+        // Wait for server response
+        await moveTaskMutation.mutateAsync({
+          taskId,
+          status: newStatus,
+          position: newPosition,
+        })
+
+        // ✅ DO NOT clear tempTasks here
+        // Let onSettled handle it after invalidation completes
+      } catch (e) {
+        // Error handled by mutation onError
+      }
+      // ✅ Remove the finally block entirely
+    },
+    [tasks, moveTaskMutation, queryClient, queryKey]
+  )
+
+  // Rest of your exports...
   return {
     tasks,
     isLoading,
     moveTask,
-    createTask,
-    updateTask,
+    createTask: (title: string, status: TaskStatus) => createTaskMutation.mutateAsync({ title, status }),
+    updateTask: (taskId: number, updates: Partial<Task>) => updateTaskMutation.mutate({ taskId, updates }),
+    deleteTask: (taskId: number) => deleteTaskMutation.mutate(taskId),
     isCreating: createTaskMutation.isPending,
-    isUpdating: updateTaskMutation.isPending,
+    isUpdating: updateTaskMutation.isPending || moveTaskMutation.isPending,
+    isDeleting: deleteTaskMutation.isPending,
   }
 }

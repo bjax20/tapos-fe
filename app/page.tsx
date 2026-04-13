@@ -34,10 +34,10 @@ export default function LandingPage() {
 
         <div className="flex flex-col items-center justify-center gap-4 pt-4 sm:flex-row">
           <Link
-            href="/register"
+            href="/signup"
             className="group flex items-center gap-2 rounded-full bg-white px-8 py-3 font-semibold text-black transition-all hover:bg-zinc-200 active:scale-95"
           >
-            Start finishing
+            Tapos that work!
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
 

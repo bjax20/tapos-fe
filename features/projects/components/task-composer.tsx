@@ -5,6 +5,7 @@ import React, { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Task, TaskStatus} from "../types"
+
 interface TaskComposerProps {
   status: TaskStatus
   onAdd: (title: string, status: TaskStatus) => Promise<Task>
@@ -18,9 +19,15 @@ export function TaskComposer({ status, onAdd, isPending }: TaskComposerProps) {
 
   const handleSubmit = async () => {
     if (!title.trim() || isPending) return
-    await onAdd(title.trim(), status)
-    setTitle("") // Clear text but stay open
-    textareaRef.current?.focus()
+    
+    try {
+      // Pass the current column status to the creation handler
+      await onAdd(title.trim(), status)
+      setTitle("") 
+      textareaRef.current?.focus()
+    } catch (error) {
+      // Error is usually handled by the mutation in useKanbanTasks
+    }
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -45,7 +52,7 @@ export function TaskComposer({ status, onAdd, isPending }: TaskComposerProps) {
         className="flex w-full items-center gap-2 rounded-lg p-2 text-sm font-medium text-zinc-500 transition-all hover:bg-zinc-800/40 hover:text-zinc-300"
       >
         <Plus size={16} />
-        Add a card
+        Add a task
       </button>
     )
   }
@@ -62,7 +69,7 @@ export function TaskComposer({ status, onAdd, isPending }: TaskComposerProps) {
       />
       <div className="flex items-center gap-2">
         <Button size="sm" onClick={handleSubmit} disabled={isPending || !title.trim()}>
-          Add Card
+          {isPending ? "Adding..." : "Add Task"}
         </Button>
         <Button
           variant="ghost"

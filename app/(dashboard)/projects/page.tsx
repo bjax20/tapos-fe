@@ -1,6 +1,6 @@
 "use client"
 
-import { CheckCircle2, Folder, Search} from "lucide-react"
+import { CheckCircle2, Folder, Search } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
 import { Card } from "@/components/ui/card"
@@ -12,6 +12,7 @@ import { useProjects } from "@/features/projects/api/hooks/use-projects"
 import { CreateProjectModal } from "@/features/projects/components/create-project-modal"
 import { ProjectMembersModal } from "@/features/projects/components/project-members-modal"
 import { Project } from "@/features/projects/types"
+import { EditProjectModal } from "@/features/projects/components/edit-project-modal"
 
 export default function ProjectsPage() {
   const { projects = [], isLoading } = useProjects()
@@ -101,52 +102,45 @@ export default function ProjectsPage() {
             ))
           ) : filteredProjects.length > 0 ? (
             filteredProjects.map((project) => (
-              <Link key={project.id} href={`/projects/${project.id}`} className="group">
-                <Card className="relative h-full overflow-hidden rounded-xl border-zinc-800 bg-zinc-900/20 p-6 transition-all duration-300 hover:border-zinc-600 hover:bg-zinc-900/50">
-                  <div className="flex h-full flex-col justify-between">
-                    <div>
-                      <div className="mb-6 flex items-start justify-between">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-md bg-zinc-800 text-zinc-400 transition-colors group-hover:text-white">
-                          <Folder className="h-4 w-4" />
-                        </div>
-                        {user?.id === project.ownerId ? (
-                          <span className="rounded bg-zinc-100 px-2 py-1 text-[9px] font-black tracking-widest text-black uppercase">
-                            Owner
-                          </span>
-                        ) : (
-                          <span className="rounded border border-zinc-800 px-2 py-1 text-[9px] font-bold tracking-widest text-zinc-500 uppercase">
-                            Member
-                          </span>
-                        )}
-                      </div>
-
-                      <h3 className="mb-2 text-xl font-bold tracking-tight text-white transition-transform duration-300 group-hover:translate-x-1">
-                        {project.title}
-                      </h3>
-                      <p className="line-clamp-2 text-sm leading-relaxed text-zinc-500">{project.description}</p>
-                    </div>
-
-                    <div className="mt-10 flex items-center justify-between text-[10px] font-bold tracking-tighter text-zinc-500 uppercase">
-                      <div className="flex gap-4">
-                        <span className="flex items-center gap-1">
-                          <CheckCircle2 className="h-3 w-3 text-emerald-500" />
-                          {project.taskCount} Tasks
-                        </span>
-                        {/* <span className="flex items-center gap-1">
-                          <Users className="h-3 w-3" />
-                          {project.memberCount}
-                        </span> */}
-                        <div onClick={(e) => e.preventDefault()}>
-                          <ProjectMembersModal projectId={project.id} projectTitle={project.title} />
-                        </div>
-                      </div>
-                      <span className="underline decoration-zinc-700 underline-offset-4 opacity-0 transition-opacity group-hover:opacity-100">
-                        Open →
-                      </span>
-                    </div>
+              <Card
+                key={project.id}
+                className="group relative h-full overflow-hidden rounded-xl border-zinc-800 bg-zinc-900/20 p-6 transition-all duration-300 hover:border-zinc-600 hover:bg-zinc-900/50"
+              >
+                <Link
+                  href={`/projects/${project.id}`}
+                  className="absolute inset-0 z-10" // Raised to 10
+                  aria-label={`Open ${project.title}`}
+                />  
+                <div className="relative z-30 mb-6 flex items-start justify-between">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-md bg-zinc-800 text-zinc-400">
+                    <Folder className="h-4 w-4" />
                   </div>
-                </Card>
-              </Link>
+
+                  <div className="flex items-center gap-2">
+                    {user?.id === project.ownerId && <EditProjectModal project={project} />}
+                    <span className="rounded bg-zinc-100 px-2 py-1 text-[9px] font-black tracking-widest text-black uppercase">
+                      {user?.id === project.ownerId ? "Owner" : "Member"}
+                    </span>
+                  </div>
+                </div>
+                <div className="pointer-events-none relative z-20">
+                  <h3 className="mb-2 text-xl font-bold tracking-tight text-white transition-transform duration-300 group-hover:translate-x-1">
+                    {project.title}
+                  </h3>
+                  <p className="line-clamp-2 text-sm leading-relaxed text-zinc-500">{project.description}</p>
+                </div>
+                <div className="relative z-30 mt-10 flex items-center justify-between text-[10px] font-bold tracking-tighter text-zinc-500 uppercase">
+                  <div className="flex gap-4">
+                    <span className="flex items-center gap-1">
+                      <CheckCircle2 className="h-3 w-3 text-emerald-500" />
+                      {project.taskCount} Tasks
+                    </span>
+          
+                    <ProjectMembersModal projectId={project.id} projectTitle={project.title} />
+                  </div>
+                  <span className="pointer-events-none underline decoration-zinc-700 underline-offset-4">Open →</span>
+                </div>
+              </Card>
             ))
           ) : (
             // Empty State

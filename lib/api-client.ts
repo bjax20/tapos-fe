@@ -2,34 +2,25 @@ import axios from "axios"
 
 export const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
-  headers: { "Content-Type": "application/json" },
+  withCredentials: true, // This is the "magic" that sends the cookie
 })
 
-// REQUEST INTERCEPTOR: Attach the token to every call
+// REQUEST INTERCEPTOR: We no longer need to attach Bearer tokens from localStorage
 apiClient.interceptors.request.use((config) => {
-  if (typeof window !== "undefined") {
-    const token = localStorage.getItem("token")
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-  }
   return config
 })
 
-// RESPONSE INTERCEPTOR: Handle expired tokens
+// RESPONSE INTERCEPTOR: Handle expired sessions
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     const isUnauthorized = error.response?.status === 401
-    // CRITICAL: Don't redirect if we are ALREADY trying to login
-    // otherwise you can get stuck in a loop
     const isLoginEndpoint = error.config?.url?.includes("/auth/login")
 
     if (isUnauthorized && !isLoginEndpoint) {
       if (typeof window !== "undefined") {
-        localStorage.removeItem("token")
+        // We don't need to remove 'token' from localStorage because it's in a cookie now
         
-        // Use window.location.replace to prevent back-button loops
         if (!window.location.pathname.includes("/login")) {
           window.location.href = "/login"
         }

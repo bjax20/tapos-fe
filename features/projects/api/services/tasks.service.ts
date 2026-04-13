@@ -28,12 +28,25 @@ export const taskService = {
     return data
   },
 
-  /**
+  /** BACKUP
    * PATCH /api/v1/projects/{projectId}/tasks/{taskId}/status
    * Update task status (for Kanban drag-and-drop)
    */
   async updateTaskStatus(projectId: number, taskId: number, status: TaskStatus): Promise<Task> {
     const { data } = await apiClient.patch<Task>(`/projects/${projectId}/tasks/${taskId}/status`, { status })
+    return data
+  },
+
+  /**
+   * PATCH /api/v1/projects/{projectId}/tasks/{taskId}/move
+   * Unified move for both Status and Position
+   */
+  async moveTask(
+    projectId: number,
+    taskId: number,
+    payload: { status?: TaskStatus; position?: number }
+  ): Promise<Task> {
+    const { data } = await apiClient.patch<Task>(`/projects/${projectId}/tasks/${taskId}/move`, payload)
     return data
   },
 

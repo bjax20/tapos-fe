@@ -1,10 +1,19 @@
 "use client"
 
 import { formatDistanceToNow } from "date-fns"
-import { CheckCircle2, History, LayoutGrid, ShieldCheck, User } from "lucide-react"
+import {
+  Activity,
+  CheckCircle2,
+  ChevronRight,
+  FolderRoot,
+  History, 
+  ShieldCheck,
+} from "lucide-react"
+import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ActivityFeed } from "@/features/projects/components/activity-feed"
 import { ProjectMembersPopover } from "./project-members-popover"
@@ -17,88 +26,99 @@ export function ProjectHeader({ projectId }: { projectId: string }) {
   const { isOwner } = useProjectPermissions(project)
 
   return (
-    <header className="z-20 flex flex-col border-b border-zinc-900 bg-black/50 backdrop-blur-md">
-      {/* Top Row: Primary Navigation and Members */}
-      <div className="flex items-center justify-between px-6 py-3">
-        <div className="flex items-center gap-4">
-          <div className="2xl:hidden">
-            <Sheet>
-              <SheetTrigger asChild>
-                <button className="rounded-md p-2 transition-colors hover:bg-zinc-900">
-                  <History size={18} className="text-zinc-400" />
-                </button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-80 border-zinc-800 bg-black p-0">
-                <ActivityFeed projectId={id} />
-              </SheetContent>
-            </Sheet>
-          </div>
+    <header className="z-40 flex h-16 w-full items-center justify-between border-b border-zinc-900 bg-black/80 px-6 backdrop-blur-xl">
+      {/* Left Section: Breadcrumb Wayfinding */}
+      <div className="flex items-center gap-3">
+        <nav className="flex items-center gap-2">
+          <Link
+            href="/projects"
+            className="group flex items-center gap-2 rounded-md px-2 py-1.5 transition-all hover:bg-zinc-900"
+          >
+            <FolderRoot size={14} className="text-zinc-500 group-hover:text-zinc-300" />
+            <span className="text-xs font-semibold text-zinc-500 group-hover:text-zinc-200">All Projects</span>
+          </Link>
 
-          <div className="flex items-center gap-2 text-zinc-500">
-            <LayoutGrid size={16} />
-            <span className="text-[11px] font-medium tracking-widest uppercase">Projects</span>
-            <span className="text-zinc-700">/</span>
-            {isLoading ? (
-              <Skeleton className="h-4 w-24 bg-zinc-800" />
-            ) : (
-              <span className="max-w-[150px] truncate text-[11px] font-medium text-zinc-300">{project?.title}</span>
-            )}
-          </div>
-        </div>
+          <ChevronRight size={14} className="text-zinc-800" />
 
-        <div className="flex items-center gap-4">
-          {/* Metadata visible on desktop */}
-          <div className="hidden items-center gap-4 md:flex">
-            <div className="flex flex-col items-end">
-              <span className="text-[10px] font-bold text-zinc-500 uppercase">Created</span>
-              <span className="text-[11px] text-zinc-300">
-                {project?.createdAt ? formatDistanceToNow(new Date(project.createdAt)) + " ago" : "---"}
-              </span>
+          {isLoading ? (
+            <Skeleton className="h-5 w-32 bg-zinc-900" />
+          ) : (
+            <div className="flex items-center gap-3 pl-1">
+              <h1 className="text-sm font-bold tracking-tight text-white">{project?.title}</h1>
+              {isOwner ? (
+                <Badge className="h-5 border-emerald-500/20 bg-emerald-500/10 px-1.5 text-[9px] font-black tracking-wider text-emerald-500 uppercase">
+                  <ShieldCheck className="mr-1 h-3 w-3" /> Owner
+                </Badge>
+              ) : (
+                <Badge className="h-5 border-zinc-800 bg-zinc-900 px-1.5 text-[9px] font-bold text-zinc-500 uppercase">
+                  Member
+                </Badge>
+              )}
             </div>
-            <Separator orientation="vertical" className="h-8 bg-zinc-800" />
-          </div>
-
-          <ProjectMembersPopover projectId={id} />
-        </div>
+          )}
+        </nav>
       </div>
 
-      {/* Bottom Row: Title and Stats Bar */}
-      <div className="flex flex-wrap items-center justify-between px-6 pt-2 pb-4">
-        <div className="flex items-baseline gap-3">
-          {isLoading ? (
-            <Skeleton className="h-8 w-64 bg-zinc-800" />
-          ) : (
-            <h1 className="text-2xl font-bold tracking-tight text-white italic">{project?.title}</h1>
-          )}
-
-          {/* UPDATED: Using isOwner from hook instead of project.role */}
-          {!isLoading &&
-            (isOwner ? (
-              <Badge className="border-emerald-500/20 bg-emerald-500/10 px-1.5 py-0 text-[9px] text-emerald-500 hover:bg-emerald-500/20">
-                <ShieldCheck className="mr-1 h-3 w-3" /> OWNER
-              </Badge>
-            ) : (
-              <Badge variant="outline" className="border-zinc-800 px-1.5 py-0 text-[9px] text-zinc-500">
-                MEMBER
-              </Badge>
-            ))}
-        </div>
-
-        <div className="mt-2 flex items-center gap-6 sm:mt-0">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 size={14} className="text-zinc-500" />
-            <span className="text-xs font-medium text-zinc-400">
-              <b className="text-zinc-100">{project?.taskCount || 0}</b> Tasks
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2 border-l border-zinc-800 pl-6">
-            <User size={14} className="text-zinc-500" />
-            <div className="flex flex-col">
-              <span className="text-[9px] leading-none font-bold text-zinc-600 uppercase">Owner</span>
-              {/* Show skeleton or placeholder if email isn't loaded yet */}
-              <span className="text-xs text-zinc-400">{isLoading ? "Loading..." : project?.owner?.email}</span>
+      {/* Right Section: Stats & Utility */}
+      <div className="flex items-center gap-6">
+        {!isLoading && (
+          <div className="hidden items-center gap-6 lg:flex">
+            <div className="flex flex-col items-end gap-0.5">
+              <span className="text-[10px] font-bold tracking-tighter text-zinc-600 uppercase">Tasks</span>
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 size={12} className="text-emerald-500" />
+                <span className="text-xs font-medium text-zinc-300">{project?.taskCount || 0}</span>
+              </div>
             </div>
+
+            <Separator orientation="vertical" className="h-8 bg-zinc-900" />
+
+            <div className="flex flex-col items-end gap-0.5">
+              <span className="text-[10px] font-bold tracking-tighter text-zinc-600 uppercase">Timeline</span>
+              <span className="text-xs text-zinc-400">
+                {project?.createdAt ? formatDistanceToNow(new Date(project.createdAt)) + " ago" : "--"}
+              </span>
+            </div>
+          </div>
+        )}
+
+        <div className="flex items-center gap-3">
+          <ProjectMembersPopover projectId={id} />
+
+          <Separator orientation="vertical" className="mx-1 h-6 bg-zinc-800" />
+          <div className="lg:hidden">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-9 gap-2 border border-zinc-800 bg-zinc-900/40 px-3 text-xs font-medium text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                >
+                  <Activity size={14} />
+                  <span className="hidden sm:inline">Activity</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-96 border-zinc-900 bg-zinc-950 p-0 shadow-2xl">
+                <div className="flex h-full flex-col">
+                  {/* Wrap your header in SheetHeader */}
+                  <SheetHeader className="flex flex-row items-center gap-2 space-y-0 border-b border-zinc-900 p-6">
+                    <History size={18} className="text-zinc-500" />
+                    <div className="text-left">
+                      <SheetTitle className="text-sm font-bold tracking-widest text-white uppercase">
+                        History
+                      </SheetTitle>
+                      <SheetDescription className="text-[11px] text-zinc-500">
+                        Recent updates for this project
+                      </SheetDescription>
+                    </div>
+                  </SheetHeader>
+
+                  <div className="flex-1 overflow-y-auto">
+                    <ActivityFeed projectId={id} />
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </div>

@@ -25,6 +25,21 @@ export const useProjects = (filters: { role?: string; page?: number; limit?: num
     onError: () => toast.error("Failed to create project."),
   })
 
+  const updateProject = useMutation({
+    // Assumes your projectService has an update method: (id, data) => ...
+    mutationFn: ({ id, data }: { id: number; data: { title?: string; description?: string } }) =>
+      projectService.update(id, data),
+    onSuccess: () => {
+      // Refresh the list
+      queryClient.invalidateQueries({ queryKey: ["projects"] })
+      // Also refresh the specific detail view if it's open
+      queryClient.invalidateQueries({ queryKey: ["projects", "detail"] })
+
+      toast.success("Project updated successfully.")
+    },
+    onError: () => toast.error("Failed to update project."),
+  })
+
   // Delete Project Mutation
   const deleteProject = useMutation({
     mutationFn: projectService.delete,
@@ -45,6 +60,8 @@ export const useProjects = (filters: { role?: string; page?: number; limit?: num
     isCreating: createProject.isPending,
     remove: deleteProject.mutate,
     isDeleting: deleteProject.isPending,
+    update: updateProject.mutate,
+    isUpdating: updateProject.isPending,
   }
 }
 
