@@ -16,7 +16,7 @@ export const useKanbanTasks = (projectId: number) => {
     queryFn: () => taskService.getTasks(projectId),
   })
 
-  // --- FIX 1: Stable Sorting ---
+  // --- Stable Sorting ---
   const tasks = useMemo(() => {
     const baseTasks = tempTasks ?? serverTasks
     return [...baseTasks].sort((a, b) => {
@@ -54,7 +54,7 @@ export const useKanbanTasks = (projectId: number) => {
     },
   })
 
-  // --- 2. Create Mutation ---
+  // --- Create Mutation ---
   const createTaskMutation = useMutation({
     mutationFn: (payload: { title: string; status: TaskStatus }) => taskService.createTask(projectId, payload),
     onSuccess: () => {
@@ -64,7 +64,7 @@ export const useKanbanTasks = (projectId: number) => {
     onError: () => toast.error("Failed to create task"),
   })
 
-  // --- 3. Update Mutation (Title, Description, etc.) ---
+  // --- Update Mutation (Title, Description, etc.) ---
   const updateTaskMutation = useMutation({
     mutationFn: ({ taskId, updates }: { taskId: number; updates: Partial<Task> }) =>
       taskService.updateTask(projectId, taskId, updates),
@@ -82,7 +82,7 @@ export const useKanbanTasks = (projectId: number) => {
     onSettled: () => queryClient.invalidateQueries({ queryKey }),
   })
 
-  // --- 4. Delete Mutation ---
+  // --- Delete Mutation ---
   const deleteTaskMutation = useMutation({
     mutationFn: (taskId: number) => taskService.deleteTask(projectId, taskId),
     onMutate: async (taskId) => {
@@ -121,17 +121,14 @@ export const useKanbanTasks = (projectId: number) => {
           position: newPosition,
         })
 
-        // ✅ DO NOT clear tempTasks here
-        // Let onSettled handle it after invalidation completes
       } catch (e) {
         // Error handled by mutation onError
       }
-      // ✅ Remove the finally block entirely
+
     },
     [tasks, moveTaskMutation, queryClient, queryKey]
   )
 
-  // Rest of your exports...
   return {
     tasks,
     isLoading,

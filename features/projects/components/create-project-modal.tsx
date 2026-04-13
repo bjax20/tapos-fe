@@ -20,7 +20,7 @@ import { useProjects } from "@/features/projects/api/hooks/use-projects"
 export function CreateProjectModal() {
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState("")
-  const [description, setDescription] = useState("") // 1. New state
+  const [description, setDescription] = useState("")
   const { create, isCreating } = useProjects()
 
   const handleCreate = () => {

@@ -81,7 +81,6 @@ export const useLogout = () => {
 
 export const useAuth = () => {
   const router = useRouter()
-  // Get the mutate function from your custom useLogout hook
   const { mutate: performLogout } = useLogout()
 
   const {

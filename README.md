@@ -1,105 +1,98 @@
 
-# [Next.js Enterprise Boilerplate](https://blazity.com/open-source/nextjs-enterprise-boilerplate) 
+# Tapos.work | Next.js Enterprise Frontend
 
-A production-ready template for building enterprise applications with Next.js. This boilerplate provides a solid foundation with carefully selected technologies and ready-to-go infrastructure to help you develop high-quality applications efficiently.
+A high-performance, production-ready frontend built with the [Next.js Enterprise Boilerplate](https://github.com/Blazity/next-enterprise). This project serves as the core user interface for the Tapos ecosystem, utilizing Next.js 15, Tailwind CSS v4, and a robust TypeScript architecture.
 
-## Motivation
+## 🚀 Quick Start (Local Development)
 
-While most Next.js boilerplates focus on individual developer needs with excessive complexity, **next-enterprise** prioritizes strategic simplicity for enterprise teams. It offers a streamlined foundation with high-impact features that maximize developer productivity and accelerate time-to-market for business-critical applications.
+This project is configured to run on **port 4000** by default to avoid conflicts with standard backend services.
 
-<a href="https://blazity.com/">
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/assets/blazity-logo-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="/assets/blazity-logo-light.svg">
-  <img alt="Logo" align="right" height="80" src="/assets/blazity-logo-light.svg">
-</picture>
-</a>
+### Prerequisites
 
-> [!NOTE]
-> **Blazity** is a group of Next.js architects. We help organizations architect, optimize, and deploy high-performance Next.js applications at scale. Contact us at [contact@blazity.com](https://blazity.com) if you’d like to talk about your project.
+  * **Node.js**: 20.x or higher
+  * **pnpm**: `corepack enable pnpm` (recommended)
+  * **Backend API**: Ensure your NestJS API is running (typically on port 3000)
 
+### Installation
 
+1.  **Clone the repository:**
 
-## Documentation
+    ```bash
+    git clone https://github.com/your-repo/tapos-web.git
+    cd tapos-web
+    ```
 
-There is a separate documentation that explains its functionality, highlights core business values and technical decisions, provides guidelines for future development, and includes architectural diagrams.
+2.  **Install dependencies:**
 
-We encourage you to [visit our docs (docs.blazity.com)](https://docs.blazity.com) to learn more
+    ```bash
+    pnpm install
+    ```
 
-## Integrated features
+3.  **Environment Setup:**
+    Create a `.env.development.local` file in the root directory:
 
-### Boilerplate
-With this template you will get all the boilerplate features included:
+    ```env
+    NEXT_PUBLIC_API_URL=http://localhost:3000/api/v1
+    NEXT_PUBLIC_APP_URL=http://localhost:4000
+    ```
 
-* [Next.js 15](https://nextjs.org/) - Performance-optimized configuration using App Directory
-* [Tailwind CSS v4](https://tailwindcss.com/) - Utility-first CSS framework for efficient UI development
-* [ESlint 9](https://eslint.org/) and [Prettier](https://prettier.io/) - Code consistency and error prevention
-* [Corepack](https://github.com/nodejs/corepack) & [pnpm](https://pnpm.io/) as the package manager - For project management without compromises 
-* [Strict TypeScript](https://www.typescriptlang.org/) - Enhanced type safety with carefully crafted config and [ts-reset](https://github.com/total-typescript/ts-reset) library
-* [GitHub Actions](https://github.com/features/actions) - Pre-configured workflows including bundle size and performance tracking
-* Perfect Lighthouse score - Optimized performance metrics
-* [Bundle analyzer](https://www.npmjs.com/package/@next/bundle-analyzer) - Monitor and manage bundle size during development
-* Testing suite - [Vitest](https://vitest.dev), [React Testing Library](https://testing-library.com/react), and [Playwright](https://playwright.dev/) for comprehensive testing
-* [Storybook](https://storybook.js.org/) - Component development and documentation
-* Advanced testing - Smoke and acceptance testing capabilities
-* [Conventional commits](https://www.conventionalcommits.org/) - Standardized commit history management
-* [Observability](https://opentelemetry.io/) - Open Telemetry integration
-* [Absolute imports](https://nextjs.org/docs/advanced-features/module-path-aliases) - Simplified import structure
-* [Health checks](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/) - Kubernetes-compatible monitoring
-* [Radix UI](https://www.radix-ui.com/) - Headless components for customization
-* [CVA](http://cva.style/) (Class Variance Authority) - Consistent design system creation
-* [Renovate BOT](https://www.whitesourcesoftware.com/free-developer-tools/renovate) - Automated dependency and security updates
-* [Patch-package](https://www.npmjs.com/package/patch-package) - External dependency fixes without compromises
-* Component relationship tools - Graph for managing coupling and cohesion
-* [Semantic Release](https://github.com/semantic-release/semantic-release) - Automated changelog generation
-* [T3 Env](https://env.t3.gg/) - Streamlined environment variable management
+4.  **Run Development Server:**
 
-### Infrastructure & deployments
+    ```bash
+    pnpm dev
+    ```
 
-#### Vercel
+    The application will be available at [http://localhost:4000](https://www.google.com/search?q=http://localhost:4000).
 
-Easily deploy your Next.js app with [Vercel](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=github&utm_campaign=next-enterprise) by clicking the button below:
+-----
 
-[![Vercel](https://vercel.com/button)](https://vercel.com/new/git/external?repository-url=https://github.com/Blazity/next-enterprise)
+## 🛠 Project Scripts
 
-#### Custom cloud infrastructure
+| Command | Action |
+| :--- | :--- |
+| `pnpm dev` | Starts the development server on **port 4000** with Turbopack. |
+| `pnpm build` | Creates an optimized production build. |
+| `pnpm lint` | Runs ESLint 9 to find and fix code style issues. |
+| `pnpm test` | Executes the Vitest suite for unit and integration tests. |
+| `pnpm storybook` | Launches Storybook on port 6006 for component development. |
+| `pnpm analyze` | Builds the app and generates a bundle analysis report. |
 
-**next-enterprise** offers dedicated infrastructure as code (IaC) solutions built with Terraform, designed specifically for deploying Next.js applications based on our extensive experience working with enterprise clients.
+-----
 
-Learn more in our [documentation (docs.blazity.com)][docs] how to quickstart with the deployments using simple CLI.
+## 🏗 Key Architectural Decisions
 
-#### Available cloud providers and theirs features:
+### Authentication (HttpOnly Cookies)
 
-* **AWS (Amazon Web Services)**
-  * Automated provisioning of AWS infrastructure
-  * Scalable & secure setup using:
-     * VPC - Isolated network infrastructure
-     * Elastic Container Service (ECS) - Container orchestration
-     * Elastic Container Registry (ECR) - Container image storage
-     * Application Load Balancer - Traffic distribution
-     * S3 + CloudFront - Static asset delivery and caching
-     * AWS WAF - Web Application Firewall protection
-     * Redis Cluster - Caching
-  * CI/CD ready - Continuous integration and deployment pipeline
+We utilize a secure, stateless JWT authentication flow.
 
-*... more coming soon*
+  * **Production**: Cookies are scoped to the `.tapos.work` domain to allow cross-subdomain access between the UI (`www.tapos.work`) and API (`api.tapos.work`).
+  * **Development**: Cookies are set to `localhost` with `SameSite: Lax`.
 
-### Team & maintenance
+### State Management & Data Fetching
 
-**next-enterprise** is backed and maintained by [Blazity](https://blazity.com), providing up to date security features and integrated feature updates.
+  * **Server Components**: Leveraged for initial data fetching and SEO optimization.
+  * **React Query / Hooks**: Used for client-side mutations (e.g., `useLogin`) and optimistic UI updates.
 
-#### Active maintainers
+### Design System
 
-- Igor Klepacki ([neg4n](https://github.com/neg4n)) - Open Source Software Developer
-- Tomasz Czechowski ([tomaszczechowski](https://github.com/tomaszczechowski)) - Solutions Architect & DevOps
-- Jakub Jabłoński ([jjablonski-it](https://github.com/jjablonski-it)) - Head of Integrations
+  * **Tailwind CSS v4**: Utility-first styling with high-performance CSS-variable-based theming.
+  * **Radix UI**: Accessible, headless primitives for complex components like Dialogs and Selects.
+  * **Lucide React**: Consistent iconography across the platform.
 
-#### All-time contributors
-[bmstefanski](https://github.com/bmstefanski)
+-----
 
-## License
+## 🔒 Security & Quality
 
-MIT
+  * **T3 Env**: Environment variables are strictly validated at runtime to prevent configuration errors.
+  * **Middleware**: Protected routes (e.g., `/projects`) are guarded by Next.js Middleware which validates the `auth_token` cookie presence.
+  * **Strict TypeScript**: Configured with `ts-reset` for improved type safety across standard library functions.
 
+-----
 
-[docs]: https://docs.blazity.com/next-enterprise/deployments/enterprise-cli
+## 🌐 Infrastructure
+
+  * **Frontend**: Deployed on Vercel (Edge Runtime where applicable).
+  * **Backend**: NestJS (Fastify) hosted on VPS
+
+-----
+

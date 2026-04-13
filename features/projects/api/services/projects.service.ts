@@ -39,7 +39,6 @@ export const projectService = {
     return data
   },
 
-  // Add this to your projectService object
   addMember: async (projectId: number, email: string) => {
     const { data } = await apiClient.post(`/projects/${projectId}/members`, { email })
     return data

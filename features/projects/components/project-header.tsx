@@ -100,7 +100,6 @@ export function ProjectHeader({ projectId }: { projectId: string }) {
               </SheetTrigger>
               <SheetContent side="right" className="w-96 border-zinc-900 bg-zinc-950 p-0 shadow-2xl">
                 <div className="flex h-full flex-col">
-                  {/* Wrap your header in SheetHeader */}
                   <SheetHeader className="flex flex-row items-center gap-2 space-y-0 border-b border-zinc-900 p-6">
                     <History size={18} className="text-zinc-500" />
                     <div className="text-left">

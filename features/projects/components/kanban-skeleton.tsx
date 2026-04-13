@@ -3,7 +3,6 @@ import { Skeleton } from "@/components/ui/skeleton"
 export default function KanbanSkeleton() {
   return (
     <div className="flex flex-col items-start gap-4 pb-10 md:flex-row">
-      {/* Map through 3 columns to match your COLUMNS constant */}
       {[1, 2, 3].map((i) => (
         <div
           key={i}

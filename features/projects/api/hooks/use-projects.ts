@@ -26,7 +26,6 @@ export const useProjects = (filters: { role?: string; page?: number; limit?: num
   })
 
   const updateProject = useMutation({
-    // Assumes your projectService has an update method: (id, data) => ...
     mutationFn: ({ id, data }: { id: number; data: { title?: string; description?: string } }) =>
       projectService.update(id, data),
     onSuccess: () => {
